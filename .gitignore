@@ -1,0 +1,7 @@
+node_modules/
+.kotadb/
+.pi/*.state.json
+.worktrees/
+nul
+.ff
+.pi
