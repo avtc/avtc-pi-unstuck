@@ -3,5 +3,4 @@ node_modules/
 .pi/*.state.json
 .worktrees/
 nul
-.ff
 .pi
