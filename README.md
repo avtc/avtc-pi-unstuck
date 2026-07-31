@@ -57,10 +57,6 @@ shorter of the two applies. Settings are persisted to
 `~/.pi/agent/avtc-pi-unstuck-settings.json` (global) or `.pi/avtc-pi-unstuck-settings.json`
 (project) and survive `/reload` via the `PI_SETTINGS_UNSTUCK` env var.
 
-## Usage
-
-No configuration needed. Both features activate automatically when installed.
-
 ## Full suite
 
 Check out the full suite of related extensions, [avtc-pi](https://github.com/avtc/avtc-pi) — deterministic feature development, subagent delegation, working-memory, behavioral learning, parallel-work guardrails, durable decisions, notifications, and more.
