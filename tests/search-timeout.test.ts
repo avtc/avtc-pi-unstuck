@@ -647,3 +647,45 @@ describe("registerSearchToolTimeouts — grep/find watchdog", () => {
     expect(pi.aborted).toBe(1); // abort still ran (send throw didn't propagate)
   });
 });
+
+describe("registerSearchToolTimeouts — powershell timeout injection (pi 0.84.3+)", () => {
+  it("injects the search timeout into a powershell search command (Select-String)", async () => {
+    const pi = makeFakePi({});
+    registerSearchToolTimeouts(pi.api, makeGetSettings({}));
+    const input: ToolInputLike = { command: "Select-String -Pattern foo -Path src/ -Recurse" };
+    await emit(pi, "tool_call", { toolName: "powershell", toolCallId: "t1", input });
+    expect(input.timeout).toBe(120); // 2m search < 10m bash
+  });
+
+  it("injects the bash timeout into a NON-search powershell command", async () => {
+    const pi = makeFakePi({});
+    registerSearchToolTimeouts(pi.api, makeGetSettings({}));
+    const input: ToolInputLike = { command: "git status" };
+    await emit(pi, "tool_call", { toolName: "powershell", toolCallId: "t1", input });
+    expect(input.timeout).toBe(600); // 10m bash
+  });
+
+  it("respects an explicit timeout on powershell commands", async () => {
+    const pi = makeFakePi({});
+    registerSearchToolTimeouts(pi.api, makeGetSettings({}));
+    const input: ToolInputLike = { command: "git push", timeout: 30 };
+    await emit(pi, "tool_call", { toolName: "powershell", toolCallId: "t1", input });
+    expect(input.timeout).toBe(30);
+  });
+
+  it("treats Get-ChildItem -Recurse as a search command", async () => {
+    const pi = makeFakePi({});
+    registerSearchToolTimeouts(pi.api, makeGetSettings({}));
+    const input: ToolInputLike = { command: "Get-ChildItem -Recurse -Filter *.log" };
+    await emit(pi, "tool_call", { toolName: "powershell", toolCallId: "t1", input });
+    expect(input.timeout).toBe(120); // search rate
+  });
+
+  it("does not treat plain Get-ChildItem (no -Recurse) as a search command", async () => {
+    const pi = makeFakePi({});
+    registerSearchToolTimeouts(pi.api, makeGetSettings({}));
+    const input: ToolInputLike = { command: "Get-ChildItem" };
+    await emit(pi, "tool_call", { toolName: "powershell", toolCallId: "t1", input });
+    expect(input.timeout).toBe(600); // bash rate
+  });
+});

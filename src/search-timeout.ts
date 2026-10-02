@@ -285,7 +285,7 @@ const XARGS_SEARCH_RE =
  * Matched on the whole command (PowerShell structure differs from bash, and
  * it is commonly piped, e.g. `Get-ChildItem -Recurse | Select-String "foo"`).
  */
-const POWERSHELL_SEARCH_RE = /\b(?:Select-String|sls)\b/i;
+const POWERSHELL_SEARCH_RE = /\b(?:Select-String|sls|Get-ChildItem(?=[^|]*-Recurse)|gci(?=[^|]*-Recurse))\b/i;
 
 /**
  * Check if a bash command is a search operation.
@@ -402,9 +402,11 @@ export function registerSearchToolTimeouts(pi: ExtensionAPI, getSettings: () => 
     }
   }
 
-  // bash: native timeout injection (every command — search gets the shorter of the two).
+  // Shell tools: native timeout injection (every command — search gets the shorter of the two).
+  // Covers bash and powershell (pi ≥ 0.84.3): both shell tools accept the same
+  // input.timeout field (PowerShellToolInput = BashToolInput).
   pi.on("tool_call", async (event) => {
-    if ((event.toolName ?? "") !== "bash") return;
+    if ((event.toolName ?? "") !== "bash" && (event.toolName ?? "") !== "powershell") return;
     const input = event.input as ToolInputLike;
     if (hasExplicitTimeout(input)) return; // respect an explicit model timeout
     const command = input.command ?? "";
