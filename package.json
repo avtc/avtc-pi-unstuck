@@ -1,6 +1,6 @@
 {
   "name": "avtc-pi-unstuck",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Auto-continue on empty model responses + configurable timeouts for bash and search tools",
   "type": "module",
   "keywords": [
@@ -37,7 +37,7 @@
     ]
   },
   "dependencies": {
-    "avtc-pi-settings-ui": "^1.0.8"
+    "avtc-pi-settings-ui": "^1.0.12"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.0",
